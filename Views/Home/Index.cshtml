@@ -1,0 +1,79 @@
+@model IndexViewModel
+
+@{
+    ViewBag.Title = "Blog Website";
+    ViewBag.Description = "This blog has everything";
+    ViewBag.Keywords = "Blog Programming Travel Photography";
+}
+@* <h2>Home Page</h2>
+    <img src="~/content/static/bdayPic.png" alt="bday pic" width="500px"> *@
+<div class="main-img">
+    <span class="title">Blog</span>
+    <form asp-controller="Home" asp-action="Index" method="GET">
+        <input type="hidden" name="pageNum" value="@Model.PageNum" />
+        <input type="hidden" name="category" value="@Model.Category" />
+        <input type="text" name="searchString" value="@Model.SearchString" />
+    </form>
+
+</div>
+
+<div class="container">
+    @foreach (var post in Model.Posts)
+    {
+        var imgPath = $"/Image/{post.Image}";
+
+        <a class="post" asp-controller="Home" asp-action="Post" asp-route-id="@post.Id">
+            <img src="@imgPath" />
+            <span class="title">@post.Title</span>
+        </a>
+    }
+    <div class="pages">
+        @if (Model.PageNum > 1)
+        {
+            <a asp-controller="Home" asp-action="Index" asp-route-searchString="@Model.SearchString"
+            asp-route-category="@Model.Category" asp-route-pageNum="@(Model.PageNum - 1)">Previous</a>
+        }
+        @{
+            List<int> pages = new List<int>();
+            var midPoint = Model.PageNum;
+            var pageCount = Model.PageCount;
+
+            if (pageCount <= 5)
+            {
+                for (int i = 1; i <= pageCount; i++)
+                {
+                    pages.Add(i);
+                }
+            }
+            else
+            {
+                if (midPoint < 3)
+                {
+                    midPoint = 3;
+                }
+                //midPoint = 3
+                else if (midPoint > pageCount - 2)
+                {
+                    midPoint = pageCount - 2;
+                }
+                for (int i = midPoint - 2; i <= midPoint + 2; i++)
+                {
+                    pages.Add(i);
+                }
+            }
+
+        }
+        @foreach (var p in pages)
+        {
+            string active = p == Model.PageNum ? "active" : "";
+            <a class="@active" asp-controller="Home" asp-action="Index" asp-route-searchString="@Model.SearchString"
+            asp-route-category="@Model.Category" asp-route-pageNum="@p">@p</a>
+        }
+
+        @if (Model.NextPage)
+        {
+            <a asp-controller="Home" asp-action="Index" asp-route-searchString="@Model.SearchString"
+            asp-route-category="@Model.Category" asp-route-pageNum="@(Model.PageNum + 1)">Next</a>
+        }
+    </div>
+</div>
